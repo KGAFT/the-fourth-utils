@@ -1,0 +1,56 @@
+[package]
+name = "the-fourth-utils"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/KGAFT/the-fourth-utils"
+categories = ["asynchronous", "network-programming", "web-programming"]
+keywords = ["tcp", "rkyv", "tokio", "asynchronous", "binary"]
+description = "A set of utils for the-fourth-server"
+documentation = "https://docs.rs/the-fourth-utils"
+
+[features]
+full = ["websocket", "tls", "structure-type", "codec", "std-codecs", "encryption-util"]
+websocket = ["dep:ws_stream_wasm", "dep:tokio-tungstenite", "dep:async-tungstenite"]
+tls = ["dep:tokio-rustls"]
+structure-type = ["dep:rkyv", "dep:num_enum"]
+codec = ["dep:tokio-util"]
+std-codecs = ["codec", "encryption-util"]
+encryption-util = ["dep:spake2", "dep:aes-gcm", "dep:aead", "dep:hkdf"]
+
+[dependencies]
+rand = "0.10"
+tokio-util = {version = "0.7", features = ["codec"], optional = true}
+futures-util = { version = "0.3", features = ["sink", "io", "tokio-io", "futures-io", "io-compat"] }
+async-trait = { version = "0.1" }
+pin-project = "1"
+futures-io = "0.3"
+bytes = "1.12"
+spake2 = { version = "0.4", optional = true }
+aes-gcm = {version = "0.11", optional = true }
+aead = {version = "0.6", optional = true }
+hkdf = {version = "0.13", optional = true }
+sha2 = "0.11"
+num_enum = { version = "0.7", optional = true }
+rkyv = { version = "0.8", features = ["unaligned", "bytes-1"], optional = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1", features = ["io-std", "io-util", "rt", "time", "sync", "net"] }
+tokio-tungstenite = { version = "0.30", optional = true }
+async-tungstenite = { version = "0.35", optional = true }
+tokio-rustls = { version = "0.26", optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tokio = { version = "1", default-features = false, features = ["sync", "macros", "io-util", "rt", "time"] }
+getrandom = { version = "0.2", features = ["js"] }
+getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+getrandom04 = { package = "getrandom", version = "0.4", features = ["wasm_js"] }
+wasm-bindgen-futures = "0.4.77"
+ws_stream_wasm = { version = "0.7", optional = true }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
